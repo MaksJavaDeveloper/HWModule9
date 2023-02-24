@@ -5,23 +5,20 @@ public class MyArrayListTests {
 
         MyArrayList list = new MyArrayList();
 
+        for(int i = 0; i <= 20; i++) {
+            list.add(i);
+        }
 
-        list.add("Kate");
-        list.add("Maks");
-        list.add("Vlad");
+        System.out.println("list = " + list);
+        System.out.println("list.get(20) = " + list.get(20));
 
+        System.out.println("list.size() = " + list.size());
 
-        System.out.println(list);
+        list.remove(4);
+        System.out.println("list after remove = " + list);
 
-        System.out.println(list.clear());
-//        list.remove(1);
-//        System.out.println(list);
-//        System.out.println(list.clear());
-//        System.out.println(list.get(1));
-//        System.out.println(list.size());
-
-//        System.out.println(list.clear());
-
+        list.clear();
+        System.out.println("list after clear = " + list);
 
     }
 }

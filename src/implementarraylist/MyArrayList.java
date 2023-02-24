@@ -1,6 +1,5 @@
 package implementarraylist;
 
-import java.util.ArrayList;
 import java.util.StringJoiner;
 
 public class MyArrayList<T> {
@@ -14,27 +13,31 @@ public class MyArrayList<T> {
      */
 
     private static final int INIT_SIZE = 8;
-    private int index;
+    private int endIndex;
 
     private Object[] data;
 
     public MyArrayList() {
+        createNewEmptyArray();
+    }
+
+    private void createNewEmptyArray() {
         data = new Object[INIT_SIZE];
+        endIndex = 0;
     }
 
     public void add(T value) {
         resize();
 
-        data[index] = value;
-        index++;
+        data[endIndex] = value;
+        endIndex++;
     }
 
     private void resize() {
-        if(index == data.length) {
-            int newSize = data.length * 2;
-            Object[] newData = new Object[newSize];
+        if(endIndex == data.length) {
+            Object[] newData = new Object[endIndex * 2];
 
-            System.arraycopy(data,0,newData,0,data.length);
+            System.arraycopy(data,0,newData,0, endIndex);
 
             data = newData;
 
@@ -42,13 +45,15 @@ public class MyArrayList<T> {
     }
 
 
-    public T get(int i) {
-        return (T) data[i];
+    public T get(int index) {
+        checkIndex(index);
+        return (T) data[index];
     }
 
     public void remove(int index) {
         checkIndex(index);
-        System.arraycopy(data,0,index + 1, data.length, INIT_SIZE - index - 1);
+        System.arraycopy(data, index + 1, data, index, endIndex - index - 1);
+        this.endIndex--;
     }
 
     private void checkIndex(int index) throws IndexOutOfBoundsException {
@@ -57,18 +62,18 @@ public class MyArrayList<T> {
         }
     }
 
-    public Object clear() {
-        return new MyArrayList<>();
+    public void clear() {
+        createNewEmptyArray();
     }
 
     public int size(){
-        return index;
+        return endIndex;
     }
 
     @Override
     public String toString() {
         StringJoiner result = new StringJoiner(", ");
-        for(int i = 0; i < index; i++) {
+        for(int i = 0; i < endIndex; i++) {
             result.add(data[i].toString());
         }
 
