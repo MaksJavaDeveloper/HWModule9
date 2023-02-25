@@ -29,7 +29,7 @@ public class MyStack<T> {
     }
 
     public int size() {
-        return size;
+        return this.size;
     }
 
     public void checkSize() {

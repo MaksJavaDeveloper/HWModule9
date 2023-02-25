@@ -9,7 +9,6 @@ public class MyLinkedList<T> {
         3) clear() очищає колекцію
         4) size() повертає розмір колекції
         5) get(int index) повертає елемент за індексом
-
          */
 
 
