@@ -25,5 +25,11 @@ public class MyHaspMapTests {
         hashMap.clear();
 
         System.out.println("hashMap after clear = " + hashMap);
+
+        for(int i = 0; i < 100000; i++) {
+            hashMap.put(" " + i,i);
+        }
+
+        System.out.println("hashMap.size() = " + hashMap.size());
     }
 }

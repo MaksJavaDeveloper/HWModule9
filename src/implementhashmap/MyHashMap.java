@@ -31,9 +31,9 @@ public class MyHashMap<K, V> {
             }
         }
 
-        if (nodeCount == BUCKET_SIZE || 100f / (table.length * BUCKET_SIZE) * size() >= DEFAULT_LOAD_FACTORY) {
-            resize(table.length * 2);
-        }
+//        if (nodeCount == BUCKET_SIZE || 100f / (table.length * BUCKET_SIZE) * size() >= DEFAULT_LOAD_FACTORY) {
+//            resize(table.length * 2);
+//        }
     }
 
     public V get(K key) {
