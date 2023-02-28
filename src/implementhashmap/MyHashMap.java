@@ -1,146 +1,110 @@
 package implementhashmap;
 
 
+import java.util.StringJoiner;
+
+/**
+ * клас MyHashMap як аналог класу HashMap.
+ * put(Object key, Object value) додає пару ключ + значення
+ * remove(Object key) видаляє пару за ключем
+ * clear() очищає колекцію
+ * size() повертає розмір колекції
+ * get(Object key) повертає значення (Object value) за ключем
+ */
+
 public class MyHashMap<K, V> {
-
-    private static final int DEFAULT_CAPACITY = 16;
-    private static final float DEFAULT_LOAD_FACTORY = 0.75f;
-    private static final int BUCKET_SIZE = 8;
-
-    private Node<K, V>[] table = new Node[DEFAULT_CAPACITY];
+    private Node<K, V> firstNode;
+    private int size = 0;
 
     public void put(K key, V value) {
-        int hash = hash(key);
-        int bucket = (table.length - 1) & hash;
-        int nodeCount = 0;
-        if (table[bucket] == null) {
-            table[bucket] = new Node<>(hash, key, value, null);
+        int h = hash(key);
+        Node<K, V> newNode = new Node<>(hash(key), key, value, null);
+        if (size == 0) {
+            firstNode = newNode;
+            size++;
         } else {
-            Node<K, V> next = table[bucket];
-            while (next.next != null) {
-                if (next.key == key || next.key.equals(key)) {
+            Node<K, V> lastNode = firstNode;
+            while (lastNode.getNext() != null) {
+                if (lastNode.getKey() == key || lastNode.getKey().equals(key)) {
                     break;
                 }
-                nodeCount++;
-                next = next.next;
+                lastNode = lastNode.getNext();
             }
-            if (next.key == key || next.key.equals(key)) {
-                table[bucket].setValue(value);
+            if (lastNode.getKey() == key || lastNode.getKey().equals(key)) {
+                lastNode.setValue(value);
             } else {
-                next.next = new Node<K, V>(hash, key, value, null);
+                lastNode.setNext(newNode);
+                size++;
             }
         }
-
-//        if (nodeCount == BUCKET_SIZE || 100f / (table.length * BUCKET_SIZE) * size() >= DEFAULT_LOAD_FACTORY) {
-//            resize(table.length * 2);
-//        }
     }
 
-    public V get(K key) {
-        int hash = hash(key);
-        int bucket = (table.length - 1) & hash;
-        Node<K, V> node = table[bucket];
-        if (node == null) {
-            throw new IllegalArgumentException("No such key exists");
+    public Node<K, V> get(K key) {
+        Node<K, V> desired = firstNode;
+        if (size() == 1) {
+            return firstNode;
         }
-        for (Node<K, V> n = node; n != null; n = n.next) {
-            if (n.getKey() == key || n.getKey().equals(key)) {
-                return n.getValue();
+        while (desired != null) {
+            if (desired.getKey() == key || desired.getKey().equals(key)) {
+                return desired;
             }
+            desired = desired.getNext();
         }
         throw new IllegalArgumentException("No such key exists");
     }
 
     public void remove(K key) {
-        int hash = hash(key);
-        int bucket = (table.length - 1) & hash;
-        Node<K, V> node = table[bucket];
-        Node<K, V> previousNode = null;
-        if (node == null) {
+        if (get(key) == null) {
             throw new IllegalArgumentException("No such key exists");
         }
-        if (node.getKey() == key) {
-            table[bucket] = node.next;
-            if (100f / (table.length * BUCKET_SIZE) * size() < DEFAULT_LOAD_FACTORY) {
-                resize(table.length / 2);
-            }
+        if (get(key) == firstNode) {
+            firstNode = firstNode.getNext();
+            size--;
             return;
         }
-        while (node.next != null) {
-            previousNode = node;
-            node = node.next;
-            if (node.getKey() == key) {
-                previousNode.next = node.next;
-                if (100f / (table.length * BUCKET_SIZE) * size() < DEFAULT_LOAD_FACTORY) {
-                    resize(table.length / 2);
-                }
+        if (size == 1) {
+            firstNode = null;
+            size--;
+            return;
+        }
+        Node<K, V> desired = firstNode;
+        Node<K, V> prev = null;
+        while (desired.getNext() != null) {
+            prev = desired;
+            desired = desired.getNext();
+            if (desired.getKey() == key || desired.getKey().equals(key)) {
+                prev.setNext(desired.getNext());
+                size--;
                 return;
             }
         }
         throw new IllegalArgumentException("No such key exists");
     }
 
-    public void clear() {
-        table = new Node[DEFAULT_CAPACITY];
-    }
-
     public int size() {
-        int result = 0;
-        for (Node<K, V> node : table) {
-            if (node == null) {
-                continue;
-            }
-            Node<K, V> nexts = node;
-            result++;
-            while (nexts.next != null) {
-                nexts = nexts.next;
-                result++;
-            }
-        }
-        return result;
+        return size;
     }
 
-    private void resize(int newCapacity) {
-        Node<K, V>[] oldTable = table;
-        table = new Node[newCapacity];
-        for (Node<K, V> node : oldTable) {
-            if (node == null) {
-                continue;
-            }
-            put(node.getKey(), node.getValue());
-            Node<K, V> next = node;
-            while (node.next != null) {
-                next = next.next;
-                put(next.getKey(), next.getValue());
-            }
-        }
+    public void clear() {
+        firstNode = null;
+        size = 0;
     }
 
     private int hash(K key) {
-        int h;
-        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+        int h = (key == null) ? 0 : key.hashCode();
+        h ^= (h >>> 20) ^ (h >>> 12);
+        return h ^ (h >>> 7) ^ (h >>> 4);
     }
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder("[");
-        for (Node<K, V> node : table) {
-            if (node == null) {
-                continue;
-            }
-            Node<K, V> next = node;
-            result.append(next).append(", ");
-            while (next.next != null) {
-                next = next.next;
-                result.append(next).append(", ");
-            }
+        StringJoiner res = new StringJoiner(", ");
+
+        Node<K, V> node = firstNode;
+        while (node != null) {
+            res.add(node.toString());
+            node = node.getNext();
         }
-        String res;
-        if (result.toString().length() == 1) {
-            res = result.append("]").toString();
-        } else {
-            res = result.substring(0, result.length() - 2) + "]";
-        }
-        return res;
+        return "[" + res + "]";
     }
 }

@@ -1,13 +1,14 @@
 package implementhashmap;
 
 
-class Node<K,V> {
-        int hash;
-        K key;
-        V value;
-        Node<K, V> next;
+class Node<K, V> {
+        private int hash;
+        private K key;
+        private V value;
 
-        public Node(int hash, K key, V value, Node<K, V> next) {
+        private Node next;
+
+        public Node(int hash, K key, V value, Node next) {
                 this.hash = hash;
                 this.key = key;
                 this.value = value;
@@ -18,6 +19,10 @@ class Node<K,V> {
                 return key;
         }
 
+        public void setKey(K key) {
+                this.key = key;
+        }
+
         public V getValue() {
                 return value;
         }
@@ -26,8 +31,16 @@ class Node<K,V> {
                 this.value = value;
         }
 
+        public Node getNext() {
+                return next;
+        }
+
+        public void setNext(Node next) {
+                this.next = next;
+        }
+
         @Override
         public String toString() {
-                return key + " = " + value;
+                return key + " : "+ value;
         }
 }
