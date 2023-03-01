@@ -33,9 +33,7 @@ class MyHashMapTest {
         System.out.println("hashMap.size() = " + hashMap.size());
         System.out.println("hashMap = " + hashMap);
 
-        for (int i = 1; i <= 10000; i++) {
-            System.out.println(hashMap.get(" " + i));
-        }
+        
         System.out.println("hashMap.size() = " + hashMap.size());
 
 

@@ -3,108 +3,139 @@ package implementhashmap;
 
 import java.util.StringJoiner;
 
-/**
- * клас MyHashMap як аналог класу HashMap.
- * put(Object key, Object value) додає пару ключ + значення
- * remove(Object key) видаляє пару за ключем
- * clear() очищає колекцію
- * size() повертає розмір колекції
- * get(Object key) повертає значення (Object value) за ключем
- */
-
 public class MyHashMap<K, V> {
-    private Node<K, V> firstNode;
-    private int size = 0;
 
-    public void put(K key, V value) {
-        int h = hash(key);
-        Node<K, V> newNode = new Node<>(hash(key), key, value, null);
-        if (size == 0) {
-            firstNode = newNode;
-            size++;
-        } else {
-            Node<K, V> lastNode = firstNode;
-            while (lastNode.getNext() != null) {
-                if (lastNode.getKey() == key || lastNode.getKey().equals(key)) {
-                    break;
-                }
-                lastNode = lastNode.getNext();
-            }
-            if (lastNode.getKey() == key || lastNode.getKey().equals(key)) {
-                lastNode.setValue(value);
-            } else {
-                lastNode.setNext(newNode);
-                size++;
-            }
-        }
+    private int size;
+    private Node<K, V> firstNode;
+    private Node<K, V> lastNode;
+
+    private void setNullFirstLastNodes() {
+        firstNode = null;
+        lastNode = null;
+        size = 0;
     }
 
-    public Node<K, V> get(K key) {
-        Node<K, V> desired = firstNode;
-        if (size() == 1) {
-            return firstNode;
-        }
-        while (desired != null) {
-            if (desired.getKey() == key || desired.getKey().equals(key)) {
-                return desired;
+    private Node<K, V> getNodeByKey(K key) {
+        Node<K, V> node = firstNode;
+        while (node != null) {
+            if (node.equals(key)) {
+                return node;
             }
-            desired = desired.getNext();
+            node = node.getNextNode();
         }
-        throw new IllegalArgumentException("No such key exists");
+        return node;
+    }
+
+    private Node<K, V> getNodeByNext(Node<K, V> searchNode) {
+        if (searchNode == null) {
+            return null;
+        }
+        Node<K, V> node = firstNode;
+        while (node != null) {
+
+            if (node.getNextNode() == null) {
+                return null;
+            }
+
+            if (node.getNextNode().equals(searchNode)) {
+                return node;
+            }
+            node = node.getNextNode();
+        }
+        return node;
+    }
+
+
+    public void put(K key, V value) {
+        if (get(key) == null) {
+            int hash = key.hashCode();
+            Node<K, V> node = new Node<>(hash, key, value);
+
+            if (size == 0) {
+                firstNode = node;
+            } else {
+                lastNode.setNextNode(node);
+            }
+            lastNode = node;
+
+            size++;
+        }
     }
 
     public void remove(K key) {
-        if (get(key) == null) {
-            throw new IllegalArgumentException("No such key exists");
-        }
-        if (get(key) == firstNode) {
-            firstNode = firstNode.getNext();
-            size--;
+        if (size == 0) {
             return;
         }
+
         if (size == 1) {
-            firstNode = null;
-            size--;
+            setNullFirstLastNodes();
             return;
         }
-        Node<K, V> desired = firstNode;
-        Node<K, V> prev = null;
-        while (desired.getNext() != null) {
-            prev = desired;
-            desired = desired.getNext();
-            if (desired.getKey() == key || desired.getKey().equals(key)) {
-                prev.setNext(desired.getNext());
-                size--;
-                return;
-            }
+
+        Node<K, V> findNode = getNodeByKey(key);
+        if (findNode == null) {
+            return;
         }
-        throw new IllegalArgumentException("No such key exists");
+
+        Node<K, V> prevNode = getNodeByNext(findNode);
+
+        if (prevNode == null) {
+            firstNode = findNode.getNextNode();
+        } else if (findNode.getNextNode() == null) {
+            prevNode.setNextNode(null);
+            lastNode = prevNode;
+        } else {
+            prevNode.setNextNode(findNode.getNextNode());
+        }
+
+        size--;
+    }
+
+    public void clear() {
+        if (size == 0) {
+            return;
+        }
+
+        Node<K, V> currentNode = firstNode;
+
+        while (currentNode != null) {
+
+            currentNode.setKey(null);
+            currentNode.setValue(null);
+            currentNode = currentNode.getNextNode();
+        }
+
+        setNullFirstLastNodes();
     }
 
     public int size() {
         return size;
     }
 
-    public void clear() {
-        firstNode = null;
-        size = 0;
+    public V get(K key) {
+        Node<K, V> node = getNodeByKey(key);
+        if (node == null) {
+            return null;
+        }
+        return node.getValue();
+
     }
 
-    private int hash(K key) {
-        int h = (key == null) ? 0 : key.hashCode();
-        h ^= (h >>> 20) ^ (h >>> 12);
-        return h ^ (h >>> 7) ^ (h >>> 4);
-    }
 
     @Override
     public String toString() {
-        StringJoiner res = new StringJoiner(", ");
+        if (size == 0) {
+            return "{}";
+        }
 
-        Node<K, V> node = firstNode;
+        StringJoiner res = new StringJoiner(",");
+        res.add(firstNode.toString());
+
+        Node<K, V> node = firstNode.getNextNode();
         while (node != null) {
             res.add(node.toString());
-            node = node.getNext();
+            node = node.getNextNode();
         }
-        return "[" + res + "]";
+        return "{" + res + "}";
     }
 }
